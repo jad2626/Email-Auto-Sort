@@ -1,0 +1,53 @@
+import re
+from collections import defaultdict
+
+# Sample email data
+emails = [
+    "Subject: Job Application; Body: Hi Jake, we have reviewed your application and would like to invite you for an interview.",
+    "Subject: Class Meeting; Body: Jake, don't forget about the class meeting scheduled at 3 PM on Wednesday.",
+    "Subject: Win a New Car!; Body: Congratulations Jake! You have been selected to win a brand new car. Click here to claim your prize.",
+]
+
+# Define categories and their keywords
+categories = {
+    "Work": ["meeting", "job", "project"],
+    "Spam": ["sale", "discount", "offer", "deal", "win"],
+    "Personal": ["family", "dinner", "gathering", "friend"],
+    "Utmost Importance": ["urgent", "account", "unknown", "security"],
+}
+
+def categorize_emails(emails, categories):
+    email_dict = defaultdict(list)  # Dictionary to store categorized emails
+
+    for email in emails:
+        subject_match = re.search(r"Subject: (.*?);", email)
+        body_match = re.search(r"Body: (.*)", email)
+
+        subject = subject_match.group(1) if subject_match else ""
+        body = body_match.group(1) if body_match else ""
+        
+        email_text = subject.lower() + " " + body.lower()
+
+        # Match email to a category based on keywords
+        categorized = False
+        for category, keywords in categories.items():
+            if any(keyword in email_text for keyword in keywords):
+                email_dict[category].append(email)
+                categorized = True
+                break
+
+        # If no category matches, classify as "Uncategorized"
+        if not categorized:
+            email_dict["Uncategorized"].append(email)
+
+    return email_dict
+
+def display_categorized_emails(email_dict):
+    for category, emails in email_dict.items():
+        print(f"\nCategory: {category}")
+        for email in emails:
+            print(f"- {email}")
+
+if __name__ == "__main__":
+    categorized_emails = categorize_emails(emails, categories)
+    display_categorized_emails(categorized_emails)
